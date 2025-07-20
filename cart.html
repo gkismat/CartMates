@@ -1,0 +1,1967 @@
+<script>
+    // --- Collaborator Feedback Logic ---
+    function getReactionsForProduct(productId) {
+      const all = JSON.parse(localStorage.getItem('collaborator_reactions') || '[]');
+      return all.filter(r => r.productId === productId);
+    }
+    function renderReactions(productId) {
+      const reactions = getReactionsForProduct(productId);
+      const list = document.querySelector(`.collaborator-reactions[data-product-id="${productId}"] .reactions-list`);
+      if (!list) return;
+      list.innerHTML = '';
+      if (reactions.length === 0) {
+        list.innerHTML = '<div class="text-muted small">No feedback yet.</div>';
+        return;
+      }
+      reactions.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'reaction-item';
+        div.innerHTML = `<span>${r.emoji || '💬'}</span> <span>${r.message || 'Voice message'}</span> <small class="ms-auto text-muted">${new Date(r.timestamp).toLocaleTimeString()}</small>`;
+        list.appendChild(div);
+      });
+    }
+    function toggleFeedback(productId) {
+      const section = document.querySelector(`.collaborator-reactions[data-product-id="${productId}"] .collaborator-feedback-list`);
+      if (!section) return;
+      section.classList.toggle('d-none');
+      if (!section.classList.contains('d-none')) {
+        renderReactions(productId);
+      }
+    }
+    // Listen for localStorage changes (cross-tab)
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'collaborator_reactions') {
+        document.querySelectorAll('.collaborator-reactions').forEach(div => {
+          const pid = div.getAttribute('data-product-id');
+          renderReactions(pid);
+        });
+      }
+    });
+    // Render feedback on page load for all products
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.collaborator-reactions').forEach(div => {
+        const pid = div.getAttribute('data-product-id');
+        renderReactions(pid);
+      });
+    });
+  </script>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Cart - FashionStore Bootstrap Template</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/drift-zoom/drift-basic.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="assets/css/main.css" rel="stylesheet">
+
+  <!-- =======================================================
+  * Template Name: FashionStore
+  * Template URL: https://bootstrapmade.com/fashion-store-bootstrap-template/
+  * Updated: Apr 26 2025 with Bootstrap v5.3.5
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
+
+  <style>
+    .cart-page .cart-item .product-image img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .cart-page .quantity-selector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cart-page .quantity-selector .quantity-btn {
+      background-color: #f1f1f1;
+      border: 1px solid #ddd;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+    }
+
+    .cart-page .quantity-selector .quantity-input {
+      width: 50px;
+      text-align: center;
+      border: 1px solid #ddd;
+      border-left: none;
+      border-right: none;
+      height: 30px;
+    }
+
+    .cart-page .cart-summary {
+      background-color: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 12px;
+    }
+
+    .collaborator-reactions {
+      background-color: #fffbe7;
+      border: 1px solid #ffeccc;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .collaborator-feedback-btn {
+      cursor: pointer;
+      color: #8c0c4f;
+      font-weight: 500;
+    }
+
+    .reactions-list .reaction-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0;
+    }
+  </style>
+</head>
+
+<body class="cart-page">
+
+  <header id="header" class="header position-relative">
+    <!-- Top Bar -->
+    <div class="top-bar py-2 d-none d-lg-block">
+      <div class="container-fluid container-xl">
+        <div class="row align-items-center">
+          <div class="col-lg-6">
+            <div class="d-flex align-items-center">
+              <div class="top-bar-item me-4">
+                <i class="bi bi-telephone-fill me-2"></i>
+                <span>Customer Support: </span>
+                <a href="tel:+1234567890">+1 (234) 567-890</a>
+              </div>
+              <div class="top-bar-item">
+                <i class="bi bi-envelope-fill me-2"></i>
+                <a href="mailto:support@example.com">support@example.com</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="d-flex justify-content-end">
+              <div class="top-bar-item me-4">
+                <a href="track-order.html">
+                  <i class="bi bi-truck me-2"></i>Track Order
+                </a>
+              </div>
+              <div class="top-bar-item dropdown me-4">
+                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                  <i class="bi bi-translate me-2"></i>English
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#"><i class="bi bi-check2 me-2 selected-icon"></i>English</a></li>
+                  <li><a class="dropdown-item" href="#">Español</a></li>
+                  <li><a class="dropdown-item" href="#">Français</a></li>
+                  <li><a class="dropdown-item" href="#">Deutsch</a></li>
+                </ul>
+              </div>
+              <div class="top-bar-item dropdown">
+                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                  <i class="bi bi-currency-dollar me-2"></i>USD
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#"><i class="bi bi-check2 me-2 selected-icon"></i>USD</a></li>
+                  <li><a class="dropdown-item" href="#">EUR</a></li>
+                  <li><a class="dropdown-item" href="#">GBP</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Header -->
+    <div class="main-header">
+      <div class="container-fluid container-xl">
+        <div class="d-flex py-3 align-items-center justify-content-between">
+
+          <!-- Logo -->
+          <a href="index.html" class="logo d-flex align-items-center">
+            <!-- Uncomment the line below if you also wish to use an image logo -->
+            <!-- <img src="assets/img/logo.webp" alt=""> -->
+            <h1 class="sitename">Fashion<span>Store</span></h1>
+          </a>
+
+          <!-- Search -->
+          <form class="search-form desktop-search-form">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Search for products...">
+              <button class="btn search-btn" type="submit">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+          </form>
+
+          <!-- Actions -->
+          <div class="header-actions d-flex align-items-center justify-content-end">
+
+     
+
+            <!-- Account -->
+            <div class="dropdown account-dropdown">
+              <button class="header-action-btn" data-bs-toggle="dropdown">
+                <i class="bi bi-person"></i>
+                <span class="action-text d-none d-md-inline-block">Account</span>
+              </button>
+              <div class="dropdown-menu">
+                <div class="dropdown-header">
+                  <h6>Welcome to <span class="sitename">FashionStore</span></h6>
+                  <p class="mb-0">Access account &amp; manage orders</p>
+                </div>
+                <div class="dropdown-body">
+                  <a class="dropdown-item d-flex align-items-center" href="account.html">
+                    <i class="bi bi-person-circle me-2"></i>
+                    <span>My Profile</span>
+                  </a>
+                  <a class="dropdown-item d-flex align-items-center" href="orders.html">
+                    <i class="bi bi-bag-check me-2"></i>
+                    <span>My Orders</span>
+                  </a>
+                  <a class="dropdown-item d-flex align-items-center" href="wishlist.html">
+                    <i class="bi bi-heart me-2"></i>
+                    <span>My Wishlist</span>
+                  </a>
+                  <a class="dropdown-item d-flex align-items-center" href="returns.html">
+                    <i class="bi bi-arrow-return-left me-2"></i>
+                    <span>Returns &amp; Refunds</span>
+                  </a>
+                  <a class="dropdown-item d-flex align-items-center" href="settings.html">
+                    <i class="bi bi-gear me-2"></i>
+                    <span>Settings</span>
+                  </a>
+                </div>
+                <div class="dropdown-footer">
+                  <a href="login.html" class="btn btn-primary w-100 mb-2">Sign In</a>
+                  <a href="register.html" class="btn btn-outline-primary w-100">Register</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Wishlist -->
+            <a href="wishlist.html" class="header-action-btn d-none d-md-flex">
+              <i class="bi bi-heart"></i>
+              <span class="action-text d-none d-md-inline-block">Wishlist</span>
+              <span class="badge">0</span>
+            </a>
+
+            <!-- Cart -->
+            <div class="dropdown cart-dropdown">
+              <button class="header-action-btn" data-bs-toggle="dropdown">
+                <i class="bi bi-cart3"></i>
+                <span class="action-text d-none d-md-inline-block">Cart</span>
+                <span class="badge">3</span>
+              </button>
+              <div class="dropdown-menu cart-dropdown-menu">
+                <div class="dropdown-header">
+                  <h6>Shopping Cart (3)</h6>
+                </div>
+                <div class="dropdown-body">
+                  <div class="cart-items">
+                    <!-- Cart Item 1 -->
+                    <div class="cart-item">
+                      <div class="cart-item-image">
+                        <img src="assets/img/product/product-1.webp" alt="Product" class="img-fluid">
+                      </div>
+                      <div class="cart-item-content">
+                        <h6 class="cart-item-title">Wireless Headphones</h6>
+                        <div class="cart-item-meta">1 × $89.99</div>
+                      </div>
+                      <button class="cart-item-remove">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+
+                    <!-- Cart Item 2 -->
+                    <div class="cart-item">
+                      <div class="cart-item-image">
+                        <img src="assets/img/product/product-2.webp" alt="Product" class="img-fluid">
+                      </div>
+                      <div class="cart-item-content">
+                        <h6 class="cart-item-title">Smart Watch</h6>
+                        <div class="cart-item-meta">1 × $129.99</div>
+                      </div>
+                      <button class="cart-item-remove">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+
+                    <!-- Cart Item 3 -->
+                    <div class="cart-item">
+                      <div class="cart-item-image">
+                        <img src="assets/img/product/product-3.webp" alt="Product" class="img-fluid">
+                      </div>
+                      <div class="cart-item-content">
+                        <h6 class="cart-item-title">Bluetooth Speaker</h6>
+                        <div class="cart-item-meta">1 × $59.99</div>
+                      </div>
+                      <button class="cart-item-remove">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="dropdown-footer">
+                  <div class="cart-total">
+                    <span>Total:</span>
+                    <span class="cart-total-price">$279.97</span>
+                  </div>
+                  <div class="cart-actions">
+                    <a href="cart.html" class="btn btn-outline-primary">View Cart</a>
+                    <a href="checkout.html" class="btn btn-primary">Checkout</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+           
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="header-nav">
+      <div class="container-fluid container-xl position-relative">
+        <nav id="navmenu" class="navmenu">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="category.html">Category</a></li>
+            <li><a href="product-details.html">Product Details</a></li>
+            <li><a href="cart.html" class="active">Cart</a></li>
+            <li><a href="checkout.html">Checkout</a></li>
+            <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+              <ul>
+                <li><a href="#">Dropdown 1</a></li>
+                <li class="dropdown"><a href="#"><span>Deep Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                  <ul>
+                    <li><a href="#">Deep Dropdown 1</a></li>
+                    <li><a href="#">Deep Dropdown 2</a></li>
+                    <li><a href="#">Deep Dropdown 3</a></li>
+                    <li><a href="#">Deep Dropdown 4</a></li>
+                    <li><a href="#">Deep Dropdown 5</a></li>
+                  </ul>
+                </li>
+                <li><a href="#">Dropdown 2</a></li>
+                <li><a href="#">Dropdown 3</a></li>
+                <li><a href="#">Dropdown 4</a></li>
+              </ul>
+            </li>
+
+            <!-- Products Mega Menu 1 -->
+            <li class="products-megamenu-1"><a href="#"><span>Megamenu 1</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+
+             
+
+              <!-- Products Mega Menu 1 Desktop View -->
+              <div class="desktop-megamenu">
+
+                <div class="megamenu-tabs">
+                  <ul class="nav nav-tabs" id="productMegaMenuTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link active" id="featured-tab" data-bs-toggle="tab" data-bs-target="#featured-content-1862" type="button" aria-selected="true" role="tab">Featured</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="new-tab" data-bs-toggle="tab" data-bs-target="#new-content-1862" type="button" aria-selected="false" tabindex="-1" role="tab">New Arrivals</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="sale-tab" data-bs-toggle="tab" data-bs-target="#sale-content-1862" type="button" aria-selected="false" tabindex="-1" role="tab">Sale</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="category-tab" data-bs-toggle="tab" data-bs-target="#category-content-1862" type="button" aria-selected="false" tabindex="-1" role="tab">Categories</button>
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Tabs Content -->
+                <div class="megamenu-content tab-content">
+
+                  <!-- Featured Tab -->
+                  <div class="tab-pane fade show active" id="featured-content-1862" role="tabpanel" aria-labelledby="featured-tab">
+                    <div class="product-grid">
+                      <div class="product-card">
+                        <div class="product-image">
+                          <img src="assets/img/product/product-1.webp" alt="Featured Product" loading="lazy">
+                        </div>
+                        <div class="product-info">
+                          <h5>Premium Headphones</h5>
+                          <p class="price">$129.99</p>
+                          <a href="#" class="btn-view">View Product</a>
+                        </div>
+                      </div>
+                      <div class="product-card">
+                        <div class="product-image">
+                          <img src="assets/img/product/product-2.webp" alt="Featured Product" loading="lazy">
+                        </div>
+                        <div class="product-info">
+                          <h5>Smart Watch</h5>
+                          <p class="price">$199.99</p>
+                          <a href="#" class="btn-view">View Product</a>
+                        </div>
+                      </div>
+                      <div class="product-card">
+                        <div class="product-image">
+                          <img src="assets/img/product/product-3.webp" alt="Featured Product" loading="lazy">
+                        </div>
+                        <div class="product-info">
+                          <h5>Wireless Earbuds</h5>
+                          <p class="price">$89.99</p>
+                          <a href="#" class="btn-view">View Product</a>
+                        </div>
+                      </div>
+                      <div class="product-card">
+                        <div class="product-image">
+                          <img src="assets/img/product/product-4.webp" alt="Featured Product" loading="lazy">
+                        </div>
+                        <div class="product-info">
+                          <h5>Bluetooth Speaker</h5>
+                          <p class="price">$79.99</p>
+                          <a href="#" class="btn-view">View Product</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- New Arrivals Tab -->
+                  <div class="tab-pane fade" id="new-content-1862" role="tabpanel" aria-labelledby="new-tab">
+                    <div class="product-grid">
+                      <div class="product-card">
+                        <div class="product-image">
+                          <img src="assets/img/product/product-5.webp" alt="New Arrival" loading="lazy">
+                          <span class="badge-new">New</span>
+                        </div>
+                        <div class="product-info">
+                          <h5>Fitness Tracker</h5>
+                          <p class="price">$69.99</p>
+                          <a href="#" class="btn-view">View Product</a>
+                        </div>
+                      </div>
+                      <div class="product-card">
+                        <div class="product-image">
+                          <img src="assets/img/product/product-6.webp" alt="New Arrival" loading="lazy">
+                          <span class="badge-new">New</span>
+                        </div>
+                        <div class="product-info">
+                          <h5>Wireless Charger</h5>
+                          <p class="price">$39.99</p>
+                          <a href="#" class="btn-view">View Product</a>
+                        </div>
+                      </div>
+                      <div class="product-card">
+                        <div class="product-image">
+                          <img src="assets/img/product/product-7.webp" alt="New Arrival" loading="lazy">
+                          <span class="badge-new">New</span>
+                        </div>
+                        <div class="product-info">
+                          <h5>Smart Bulb Set</h5>
+                          <p class="price">$49.99</p>
+                          <a href="#" class="btn-view">View Product</a>
+                        </div>
+                      </div>
+                      <div class="product-card">
+                        <div class="product-image">
+                          <img src="assets/img/product/product-8.webp" alt="New Arrival" loading="lazy">
+                          <span class="badge-new">New</span>
+                        </div>
+                        <div class="product-info">
+                          <h5>Portable Power Bank</h5>
+                          <p class="price">$59.99</p>
+                          <a href="#" class="btn-view">View Product</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Sale Tab -->
+                  <div class="tab-pane fade" id="sale-content-1862" role="tabpanel" aria-labelledby="sale-tab">
+                    <div class="product-grid">
+                      <div class="product-card">
+                        <div class="product-image">
+                          <img src="assets/img/product/product-9.webp" alt="Sale Product" loading="lazy">
+                          <span class="badge-sale">-30%</span>
+                        </div>
+                        <div class="product-info">
+                          <h5>Wireless Keyboard</h5>
+                          <p class="price"><span class="original-price">$89.99</span> $62.99</p>
+                          <a href="#" class="btn-view">View Product</a>
+                        </div>
+                      </div>
+                      <div class="product-card">
+                        <div class="product-image">
+                          <img src="assets/img/product/product-10.webp" alt="Sale Product" loading="lazy">
+                          <span class="badge-sale">-25%</span>
+                        </div>
+                        <div class="product-info">
+                          <h5>Gaming Mouse</h5>
+                          <p class="price"><span class="original-price">$59.99</span> $44.99</p>
+                          <a href="#" class="btn-view">View Product</a>
+                        </div>
+                      </div>
+                      <div class="product-card">
+                        <div class="product-image">
+                          <img src="assets/img/product/product-11.webp" alt="Sale Product" loading="lazy">
+                          <span class="badge-sale">-40%</span>
+                        </div>
+                        <div class="product-info">
+                          <h5>Desk Lamp</h5>
+                          <p class="price"><span class="original-price">$49.99</span> $29.99</p>
+                          <a href="#" class="btn-view">View Product</a>
+                        </div>
+                      </div>
+                      <div class="product-card">
+                        <div class="product-image">
+                          <img src="assets/img/product/product-12.webp" alt="Sale Product" loading="lazy">
+                          <span class="badge-sale">-20%</span>
+                        </div>
+                        <div class="product-info">
+                          <h5>USB-C Hub</h5>
+                          <p class="price"><span class="original-price">$39.99</span> $31.99</p>
+                          <a href="#" class="btn-view">View Product</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Categories Tab -->
+                  <div class="tab-pane fade" id="category-content-1862" role="tabpanel" aria-labelledby="category-tab">
+                    <div class="category-grid">
+                      <div class="category-column">
+                        <h4>Clothing</h4>
+                        <ul>
+                          <li><a href="#">Men's Wear</a></li>
+                          <li><a href="#">Women's Wear</a></li>
+                          <li><a href="#">Kids Collection</a></li>
+                          <li><a href="#">Sportswear</a></li>
+                          <li><a href="#">Accessories</a></li>
+                        </ul>
+                      </div>
+                      <div class="category-column">
+                        <h4>Electronics</h4>
+                        <ul>
+                          <li><a href="#">Smartphones</a></li>
+                          <li><a href="#">Laptops</a></li>
+                          <li><a href="#">Audio Devices</a></li>
+                          <li><a href="#">Smart Home</a></li>
+                          <li><a href="#">Accessories</a></li>
+                        </ul>
+                      </div>
+                      <div class="category-column">
+                        <h4>Home &amp; Living</h4>
+                        <ul>
+                          <li><a href="#">Furniture</a></li>
+                          <li><a href="#">Decor</a></li>
+                          <li><a href="#">Kitchen</a></li>
+                          <li><a href="#">Bedding</a></li>
+                          <li><a href="#">Lighting</a></li>
+                        </ul>
+                      </div>
+                      <div class="category-column">
+                        <h4>Beauty</h4>
+                        <ul>
+                          <li><a href="#">Skincare</a></li>
+                          <li><a href="#">Makeup</a></li>
+                          <li><a href="#">Haircare</a></li>
+                          <li><a href="#">Fragrances</a></li>
+                          <li><a href="#">Personal Care</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div><!-- End Products Mega Menu 1 Desktop View -->
+
+            </li><!-- End Products Mega Menu 1 -->
+            <!-- Products Mega Menu 2 -->
+            <li class="products-megamenu-2"><a href="#"><span>Megamenu 2</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+
+              <!-- Products Mega Menu 2 Mobile View -->
+              <ul class="mobile-megamenu">
+
+                <li><a href="#">Women</a></li>
+                <li><a href="#">Men</a></li>
+                <li><a href="#">Kids'</a></li>
+
+                <li class="dropdown"><a href="#"><span>Clothing</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                  <ul>
+                    <li><a href="#">Shirts &amp; Tops</a></li>
+                    <li><a href="#">Coats &amp; Outerwear</a></li>
+                    <li><a href="#">Underwear</a></li>
+                    <li><a href="#">Sweatshirts</a></li>
+                    <li><a href="#">Dresses</a></li>
+                    <li><a href="#">Swimwear</a></li>
+                  </ul>
+                </li>
+
+                <li class="dropdown"><a href="#"><span>Shoes</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                  <ul>
+                    <li><a href="#">Boots</a></li>
+                    <li><a href="#">Sandals</a></li>
+                    <li><a href="#">Heels</a></li>
+                    <li><a href="#">Loafers</a></li>
+                    <li><a href="#">Slippers</a></li>
+                    <li><a href="#">Oxfords</a></li>
+                  </ul>
+                </li>
+
+                <li class="dropdown"><a href="#"><span>Accessories</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                  <ul>
+                    <li><a href="#">Handbags</a></li>
+                    <li><a href="#">Eyewear</a></li>
+                    <li><a href="#">Hats</a></li>
+                    <li><a href="#">Watches</a></li>
+                    <li><a href="#">Jewelry</a></li>
+                    <li><a href="#">Belts</a></li>
+                  </ul>
+                </li>
+
+                <li class="dropdown"><a href="#"><span>Specialty Sizes</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                  <ul>
+                    <li><a href="#">Plus Size</a></li>
+                    <li><a href="#">Petite</a></li>
+                    <li><a href="#">Wide Shoes</a></li>
+                    <li><a href="#">Narrow Shoes</a></li>
+                  </ul>
+                </li>
+
+              </ul><!-- End Products Mega Menu 2 Mobile View -->
+
+              <!-- Products Mega Menu 2 Desktop View -->
+              <div class="desktop-megamenu">
+
+                <div class="megamenu-tabs">
+                  <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link active" id="womens-tab" data-bs-toggle="tab" data-bs-target="#womens-content-1883" type="button" aria-selected="true" role="tab">WOMEN</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="mens-tab" data-bs-toggle="tab" data-bs-target="#mens-content-1883" type="button" aria-selected="false" tabindex="-1" role="tab">MEN</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="kids-tab" data-bs-toggle="tab" data-bs-target="#kids-content-1883" type="button" aria-selected="false" tabindex="-1" role="tab">KIDS</button>
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Tabs Content -->
+                <div class="megamenu-content tab-content">
+
+                  <!-- Women Tab -->
+                  <div class="tab-pane fade show active" id="womens-content-1883" role="tabpanel" aria-labelledby="womens-tab">
+                    <div class="category-layout">
+                      <div class="categories-section">
+                        <div class="category-headers">
+                          <h4>Clothing</h4>
+                          <h4>Shoes</h4>
+                          <h4>Accessories</h4>
+                          <h4>Specialty Sizes</h4>
+                        </div>
+
+                        <div class="category-links">
+                          <div class="link-row">
+                            <a href="#">Shirts &amp; Tops</a>
+                            <a href="#">Boots</a>
+                            <a href="#">Handbags</a>
+                            <a href="#">Plus Size</a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Coats &amp; Outerwear</a>
+                            <a href="#">Sandals</a>
+                            <a href="#">Eyewear</a>
+                            <a href="#">Petite</a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Underwear</a>
+                            <a href="#">Heels</a>
+                            <a href="#">Hats</a>
+                            <a href="#">Wide Shoes</a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Sweatshirts</a>
+                            <a href="#">Loafers</a>
+                            <a href="#">Watches</a>
+                            <a href="#">Narrow Shoes</a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Dresses</a>
+                            <a href="#">Slippers</a>
+                            <a href="#">Jewelry</a>
+                            <a href="#"></a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Swimwear</a>
+                            <a href="#">Oxfords</a>
+                            <a href="#">Belts</a>
+                            <a href="#"></a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">View all</a>
+                            <a href="#">View all</a>
+                            <a href="#">View all</a>
+                            <a href="#"></a>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="featured-section">
+                        <div class="featured-image">
+                          <img src="assets/img/product/product-f-1.webp" alt="Women's Heels Collection">
+                          <div class="featured-content">
+                            <h3>Women's<br>Bags<br>Collection</h3>
+                            <a href="#" class="btn-shop">Shop now</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Men Tab -->
+                  <div class="tab-pane fade" id="mens-content-1883" role="tabpanel" aria-labelledby="mens-tab">
+                    <div class="category-layout">
+                      <div class="categories-section">
+                        <div class="category-headers">
+                          <h4>Clothing</h4>
+                          <h4>Shoes</h4>
+                          <h4>Accessories</h4>
+                          <h4>Specialty Sizes</h4>
+                        </div>
+
+                        <div class="category-links">
+                          <div class="link-row">
+                            <a href="#">Shirts &amp; Polos</a>
+                            <a href="#">Sneakers</a>
+                            <a href="#">Watches</a>
+                            <a href="#">Big &amp; Tall</a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Jackets &amp; Coats</a>
+                            <a href="#">Boots</a>
+                            <a href="#">Belts</a>
+                            <a href="#">Slim Fit</a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Underwear</a>
+                            <a href="#">Loafers</a>
+                            <a href="#">Ties</a>
+                            <a href="#">Wide Shoes</a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Hoodies</a>
+                            <a href="#">Dress Shoes</a>
+                            <a href="#">Wallets</a>
+                            <a href="#">Extended Sizes</a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Suits</a>
+                            <a href="#">Sandals</a>
+                            <a href="#">Sunglasses</a>
+                            <a href="#"></a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Activewear</a>
+                            <a href="#">Slippers</a>
+                            <a href="#">Hats</a>
+                            <a href="#"></a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">View all</a>
+                            <a href="#">View all</a>
+                            <a href="#">View all</a>
+                            <a href="#"></a>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="featured-section">
+                        <div class="featured-image">
+                          <img src="assets/img/product/product-m-4.webp" alt="Men's Footwear Collection">
+                          <div class="featured-content">
+                            <h3>Men's<br>Footwear<br>Collection</h3>
+                            <a href="#" class="btn-shop">Shop now</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Kids Tab -->
+                  <div class="tab-pane fade" id="kids-content-1883" role="tabpanel" aria-labelledby="kids-tab">
+                    <div class="category-layout">
+                      <div class="categories-section">
+                        <div class="category-headers">
+                          <h4>Clothing</h4>
+                          <h4>Shoes</h4>
+                          <h4>Accessories</h4>
+                          <h4>By Age</h4>
+                        </div>
+
+                        <div class="category-links">
+                          <div class="link-row">
+                            <a href="#">T-shirts &amp; Tops</a>
+                            <a href="#">Sneakers</a>
+                            <a href="#">Backpacks</a>
+                            <a href="#">Babies (0-24 months)</a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Outerwear</a>
+                            <a href="#">Boots</a>
+                            <a href="#">Hats &amp; Caps</a>
+                            <a href="#">Toddlers (2-4 years)</a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Pajamas</a>
+                            <a href="#">Sandals</a>
+                            <a href="#">Socks</a>
+                            <a href="#">Kids (4-7 years)</a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Sweatshirts</a>
+                            <a href="#">Slippers</a>
+                            <a href="#">Gloves</a>
+                            <a href="#">Older Kids (8-14 years)</a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Dresses</a>
+                            <a href="#">School Shoes</a>
+                            <a href="#">Scarves</a>
+                            <a href="#"></a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">Swimwear</a>
+                            <a href="#">Sports Shoes</a>
+                            <a href="#">Hair Accessories</a>
+                            <a href="#"></a>
+                          </div>
+                          <div class="link-row">
+                            <a href="#">View all</a>
+                            <a href="#">View all</a>
+                            <a href="#">View all</a>
+                            <a href="#"></a>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="featured-section">
+                        <div class="featured-image">
+                          <img src="assets/img/product/product-9.webp" alt="Kids' New Arrivals">
+                          <div class="featured-content">
+                            <h3>Kids<br>New<br>Arrivals</h3>
+                            <a href="#" class="btn-shop">Shop now</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div><!-- End Products Mega Menu 2 Desktop View -->
+
+            </li><!-- End Products Mega Menu 2 -->
+
+            <li><a href="contact.html">Contact</a></li>
+
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Announcement Bar -->
+    <div class="announcement-bar py-2">
+      <div class="container-fluid container-xl">
+        <div class="announcement-slider swiper init-swiper">
+          <script type="application/json" class="swiper-config">
+            {
+              "loop": true,
+              "speed": 600,
+              "autoplay": {
+                "delay": 5000
+              },
+              "slidesPerView": 1,
+              "effect": "slide",
+              "direction": "vertical"
+            }
+          </script>
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">🚚 Free shipping on orders over $50</div>
+            <div class="swiper-slide">💰 30 days money back guarantee</div>
+            <div class="swiper-slide">🎁 20% off on your first order - Use code: FIRST20</div>
+            <div class="swiper-slide">⚡ Flash Sale! Up to 70% off on selected items</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Search Form -->
+    <div class="collapse" id="mobileSearch">
+      <div class="container">
+        <form class="search-form">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search for products...">
+            <button class="btn search-btn" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </header>
+
+  <main class="main">
+
+    <!-- Page Title -->
+    <div class="page-title light-background">
+      <div class="container">
+        <nav class="breadcrumbs">
+          <ol>
+            <li><a href="index.html">Home</a></li>
+            <li class="current">Cart</li>
+          </ol>
+        </nav>
+        <h1>Cart</h1>
+      </div>
+    </div><!-- End Page Title -->
+
+    <!-- Cart Section -->
+    <section id="cart" class="cart section">
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row">
+          <div class="col-lg-8" data-aos="fade-up" data-aos-delay="200">
+            <div class="cart-items">
+              <div class="cart-header d-none d-lg-block">
+                <div class="row align-items-center">
+                  <div class="col-lg-6">
+                    <h5>Product</h5>
+                  </div>
+                  <div class="col-lg-2 text-center">
+                    <h5>Price</h5>
+                  </div>
+                  <div class="col-lg-2 text-center">
+                    <h5>Quantity</h5>
+                  </div>
+                  <div class="col-lg-2 text-center">
+                    <h5>Total</h5>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cart Item 1 -->
+              <div class="cart-item" data-product-id="prod-1">
+                <div class="row align-items-center">
+                  <div class="col-lg-6 col-12 mt-3 mt-lg-0 mb-lg-0 mb-3">
+                    <div class="product-info d-flex align-items-center">
+                      <div class="product-image">
+                        <img src="assets/img/product/product-1.webp" alt="Product" class="img-fluid" loading="lazy">
+                      </div>
+                      <div class="product-details">
+                        <h6 class="product-title">Leather Purse</h6>
+                        <div class="product-meta">
+                          <span class="product-color">Color: Black</span>
+                          <span class="product-size">Size: One Size</span>
+                        </div>
+                        <button class="remove-item" type="button" onclick="CartIntegration.removeFromCart('prod-1')">
+                          <i class="bi bi-trash"></i> Remove
+                        </button>
+                        <!-- Collaborator Reactions (button always visible, feedback toggled) -->
+                        <div class="collaborator-reactions mt-2" data-product-id="prod-1">
+                          <button type="button" class="btn btn-outline-primary btn-sm collaborator-feedback-btn" onclick="toggleFeedback('prod-1')">
+                            <i class="bi bi-chat-dots me-1"></i> Collaborator Feedback
+                          </button>
+                          <div class="collaborator-feedback-list d-none mt-2">
+                            <div class="reactions-list"></div>
+                          </div>
+
+<!-- LLM Suggestion Display -->
+<div class="llm-suggestion mt-2">
+  <span id="llm-suggestion-prod-1" style="font-weight:bold; padding:4px 12px; border-radius:6px; display:inline-block;"></span>
+</div>
+
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                    <div class="price-tag">
+                      <span class="current-price">$89.99</span>
+                    </div>
+                  </div>
+                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                    <div class="quantity-selector">
+                      <button class="quantity-btn decrease" onclick="CartIntegration.decreaseQuantity('prod-1')">
+                        <i class="bi bi-dash"></i>
+                      </button>
+                      <input type="number" class="quantity-input" value="1" min="1" max="10" 
+                             onchange="CartIntegration.updateQuantity('prod-1', this.value)">
+                      <button class="quantity-btn increase" onclick="CartIntegration.increaseQuantity('prod-1')">
+                        <i class="bi bi-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                    <div class="item-total">
+                      <span>$89.99</span>
+                    </div>
+                  </div>
+                </div>
+              </div><!-- End Cart Item -->
+
+              <!-- Cart Item 2 -->
+              <div class="cart-item" data-product-id="prod-2">
+                <div class="row align-items-center">
+                  <div class="col-lg-6 col-12 mt-3 mt-lg-0 mb-lg-0 mb-3">
+                    <div class="product-info d-flex align-items-center">
+                      <div class="product-image">
+                        <img src="assets/img/product/product-2.webp" alt="Product" class="img-fluid" loading="lazy">
+                      </div>
+                      <div class="product-details">
+                        <h6 class="product-title">Wooden Sofa</h6>
+                        <div class="product-meta">
+                          <span class="product-color">Color: Silver</span>
+                          <span class="product-size">Size: 42mm</span>
+                        </div>
+                        <button class="remove-item" type="button" onclick="CartIntegration.removeFromCart('prod-2')">
+                          <i class="bi bi-trash"></i> Remove
+                        </button>
+                        <!-- Collaborator Reactions (button always visible, feedback toggled) -->
+                        <div class="collaborator-reactions mt-2" data-product-id="prod-2">
+                          <button type="button" class="btn btn-outline-primary btn-sm collaborator-feedback-btn" onclick="toggleFeedback('prod-2')">
+                            <i class="bi bi-chat-dots me-1"></i> Collaborator Feedback
+                          </button>
+                          <div class="collaborator-feedback-list d-none mt-2">
+                            <div class="reactions-list"></div>
+                          </div>
+
+
+
+                          <!-- LLM Suggestion Display -->
+<div class="llm-suggestion mt-2">
+  <span id="llm-suggestion-prod-2" style="font-weight:bold; padding:4px 12px; border-radius:6px; display:inline-block;"></span>
+</div>
+
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                    <div class="price-tag">
+                      <span class="current-price">$129.99</span>
+                      <span class="original-price">$159.99</span>
+                    </div>
+                  </div>
+                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                    <div class="quantity-selector">
+                      <button class="quantity-btn decrease" onclick="CartIntegration.decreaseQuantity('prod-2')">
+                        <i class="bi bi-dash"></i>
+                      </button>
+                      <input type="number" class="quantity-input" value="1" min="1" max="10"
+                             onchange="CartIntegration.updateQuantity('prod-2', this.value)">
+                      <button class="quantity-btn increase" onclick="CartIntegration.increaseQuantity('prod-2')">
+                        <i class="bi bi-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                    <div class="item-total">
+                      <span>$129.99</span>
+                    </div>
+                  </div>
+                </div>
+              </div><!-- End Cart Item -->
+
+              <!-- Cart Item 3 -->
+              <div class="cart-item" data-product-id="prod-3">
+                <div class="row align-items-center">
+                  <div class="col-lg-6 col-12 mt-3 mt-lg-0 mb-lg-0 mb-3">
+                    <div class="product-info d-flex align-items-center">
+                      <div class="product-image">
+                        <img src="assets/img/product/product-3.webp" alt="Product" class="img-fluid" loading="lazy">
+                      </div>
+                      <div class="product-details">
+                        <h6 class="product-title">Sunglasses</h6>
+                        <div class="product-meta">
+                          <span class="product-color">Color: Blue</span>
+                          <span class="product-size">Size: Portable</span>
+                        </div>
+                        <button class="remove-item" type="button" onclick="CartIntegration.removeFromCart('prod-3')">
+                          <i class="bi bi-trash"></i> Remove
+                        </button>
+                        <!-- Collaborator Reactions (button always visible, feedback toggled) -->
+                        <div class="collaborator-reactions mt-2" data-product-id="prod-3">
+                          <button type="button" class="btn btn-outline-primary btn-sm collaborator-feedback-btn" onclick="toggleFeedback('prod-3')">
+                            <i class="bi bi-chat-dots me-1"></i> Collaborator Feedback
+                          </button>
+                          <div class="collaborator-feedback-list d-none mt-2">
+                            <div class="reactions-list"></div>
+                          </div>
+
+
+
+                          <!-- LLM Suggestion Display -->
+<div class="llm-suggestion mt-2">
+  <span id="llm-suggestion-prod-3" style="font-weight:bold; padding:4px 12px; border-radius:6px; display:inline-block;"></span>
+</div>
+
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                    <div class="price-tag">
+                      <span class="current-price">$59.99</span>
+                    </div>
+                  </div>
+                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                    <div class="quantity-selector">
+                      <button class="quantity-btn decrease" onclick="CartIntegration.decreaseQuantity('prod-3')">
+                        <i class="bi bi-dash"></i>
+                      </button>
+                      <input type="number" class="quantity-input" value="1" min="1" max="10"
+                             onchange="CartIntegration.updateQuantity('prod-3', this.value)">
+                      <button class="quantity-btn increase" onclick="CartIntegration.increaseQuantity('prod-3')">
+                        <i class="bi bi-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                    <div class="item-total">
+                      <span>$59.99</span>
+                    </div>
+                  </div>
+                </div>
+              </div><!-- End Cart Item -->
+
+              <div class="cart-actions">
+                <div class="row">
+                  <div class="col-lg-6 mb-3 mb-lg-0">
+                    <div class="coupon-form">
+                      <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Coupon code">
+                        <button class="btn btn-outline-accent" type="button">Apply Coupon</button>
+                      </div>
+                    </div>
+                  </div>
+
+
+
+                  <div class="form-group mt-3" style="max-width: 420px;">
+                    <label for="collabEmail" style="font-weight: 500; color: #6c2364; margin-bottom: 4px;">Add Collaborator</label>
+                    <div class="input-group">
+                      <input type="email" id="collabEmail" class="form-control" placeholder="Enter collaborator's email" required>
+                      <button class="btn btn-collab" id="addCollaboratorBtn" type="button">Add</button>
+                    </div>
+                    <small class="form-text" style="color:#b21b77;">They’ll be redirected to join your shared cart.</small>
+                  </div>
+                  
+           
+                  
+                  <div class="col-lg-6 text-md-end">
+                    <button class="btn btn-outline-heading me-2">
+                      <i class="bi bi-arrow-clockwise"></i> Update Cart
+                    </button>
+                    <button class="btn btn-outline-remove" onclick="CartIntegration.clearCart()">
+                      <i class="bi bi-trash"></i> Clear Cart
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 mt-4 mt-lg-0" data-aos="fade-up" data-aos-delay="300">
+            <div class="cart-summary">
+              <h4 class="summary-title">Order Summary</h4>
+
+              <div class="summary-item">
+                <span class="summary-label">Subtotal</span>
+                <span class="summary-value">$279.97</span>
+              </div>
+
+              <div class="summary-item shipping-item">
+                <span class="summary-label">Shipping</span>
+                <div class="shipping-options">
+                  <div class="form-check text-end">
+                    <input class="form-check-input" type="radio" name="shipping" id="standard" checked="">
+                    <label class="form-check-label" for="standard">
+                      Standard Delivery - $4.99
+                    </label>
+                  </div>
+                  <div class="form-check text-end">
+                    <input class="form-check-input" type="radio" name="shipping" id="express">
+                    <label class="form-check-label" for="express">
+                      Express Delivery - $12.99
+                    </label>
+                  </div>
+                  <div class="form-check text-end">
+                    <input class="form-check-input" type="radio" name="shipping" id="free">
+                    <label class="form-check-label" for="free">
+                      Free Shipping (Orders over $300)
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="summary-item">
+                <span class="summary-label">Tax</span>
+                <span class="summary-value">$28.00</span>
+              </div>
+
+              <div class="summary-item discount">
+                <span class="summary-label">Discount</span>
+                <span class="summary-value">-$0.00</span>
+              </div>
+
+              <div class="summary-total">
+                <span class="summary-label">Total</span>
+                <span class="summary-value">$312.96</span>
+              </div>
+
+              <div class="checkout-button">
+                <a href="#" class="btn btn-accent w-100">
+                  Proceed to Checkout <i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
+
+              <div class="continue-shopping">
+                <a href="#" class="btn btn-link w-100">
+                  <i class="bi bi-arrow-left"></i> Continue Shopping
+                </a>
+              </div>
+
+              <div class="payment-methods">
+                <p class="payment-title">We Accept</p>
+                <div class="payment-icons">
+                  <i class="bi bi-credit-card"></i>
+                  <i class="bi bi-paypal"></i>
+                  <i class="bi bi-wallet2"></i>
+                  <i class="bi bi-bank"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section><!-- /Cart Section -->
+
+ <!-- ...existing cart content... -->
+
+<!-- Add Collaborator Box -->
+
+
+
+  <footer id="footer" class="footer light-background">
+    <div class="footer-main">
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-4 col-md-6">
+            <div class="footer-widget footer-about">
+              <a href="index.html" class="logo">
+                <span class="sitename">FashionStore</span>
+              </a>
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in nibh vehicula, facilisis magna ut, consectetur lorem. Proin eget tortor risus.</p>
+
+              <div class="social-links mt-4">
+                <h5>Connect With Us</h5>
+                <div class="social-icons">
+                  <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                  <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                  <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                  <a href="#" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
+                  <a href="#" aria-label="Pinterest"><i class="bi bi-pinterest"></i></a>
+                  <a href="#" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-2 col-md-6 col-sm-6">
+            <div class="footer-widget">
+              <h4>Shop</h4>
+              <ul class="footer-links">
+                <li><a href="category.html">New Arrivals</a></li>
+                <li><a href="category.html">Bestsellers</a></li>
+                <li><a href="category.html">Women's Clothing</a></li>
+                <li><a href="category.html">Men's Clothing</a></li>
+                <li><a href="category.html">Accessories</a></li>
+                <li><a href="category.html">Sale</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="col-lg-2 col-md-6 col-sm-6">
+            <div class="footer-widget">
+              <h4>Support</h4>
+              <ul class="footer-links">
+                <li><a href="support.html">Help Center</a></li>
+                <li><a href="account.html">Order Status</a></li>
+                <li><a href="shiping-info.html">Shipping Info</a></li>
+                <li><a href="return-policy.html">Returns &amp; Exchanges</a></li>
+                <li><a href="#">Size Guide</a></li>
+                <li><a href="contact.html">Contact Us</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6">
+            <div class="footer-widget">
+              <h4>Contact Information</h4>
+              <div class="footer-contact">
+                <div class="contact-item">
+                  <i class="bi bi-geo-alt"></i>
+                  <span>123 Fashion Street, New York, NY 10001</span>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-telephone"></i>
+                  <span>+1 (555) 123-4567</span>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-envelope"></i>
+                  <span>hello@example.com</span>
+                </div>
+                <div class="contact-item">
+                  <i class="bi bi-clock"></i>
+                  <span>Monday-Friday: 9am-6pm<br>Saturday: 10am-4pm<br>Sunday: Closed</span>
+                </div>
+              </div>
+
+              <div class="app-buttons mt-4">
+                <a href="#" class="app-btn">
+                  <i class="bi bi-apple"></i>
+                  <span>App Store</span>
+                </a>
+                <a href="#" class="app-btn">
+                  <i class="bi bi-google-play"></i>
+                  <span>Google Play</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container">
+        <div class="row gy-3 align-items-center">
+          <div class="col-lg-6 col-md-12">
+            <div class="copyright">
+              <p>© <span>Copyright</span> <strong class="sitename">MyWebsite</strong>. All Rights Reserved.</p>
+            </div>
+            <div class="credits mt-1">
+              <!-- All the links in the footer should remain intact. -->
+              <!-- You can delete the links only if you've purchased the pro version. -->
+              <!-- Licensing information: https://bootstrapmade.com/license/ -->
+              <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
+              Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+            </div>
+          </div>
+
+          <div class="col-lg-6 col-md-12">
+            <div class="d-flex flex-wrap justify-content-lg-end justify-content-center align-items-center gap-4">
+              <div class="payment-methods">
+                <div class="payment-icons">
+                  <i class="bi bi-credit-card" aria-label="Credit Card"></i>
+                  <i class="bi bi-paypal" aria-label="PayPal"></i>
+                  <i class="bi bi-apple" aria-label="Apple Pay"></i>
+                  <i class="bi bi-google" aria-label="Google Pay"></i>
+                  <i class="bi bi-shop" aria-label="Shop Pay"></i>
+                  <i class="bi bi-cash" aria-label="Cash on Delivery"></i>
+                </div>
+              </div>
+
+              <div class="legal-links">
+                <a href="tos.html">Terms</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="tos.html">Cookies</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/drift-zoom/Drift.min.js"></script>
+  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+  <!-- Collaborator Integration -->
+  <script src="collaborator/firebase-config.js"></script>
+
+  <!-- Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+  <!-- Cart-specific JavaScript -->
+  <script>
+    // Product data
+    const cartProducts = {
+      'prod-1': {
+        id: 'prod-1',
+        name: 'Premium Wireless Headphones',
+        price: 89.99,
+        image: 'assets/img/product/product-1.webp'
+      },
+      'prod-2': {
+        id: 'prod-2',
+        name: 'Smart Fitness Watch',
+        price: 129.99,
+        image: 'assets/img/product/product-2.webp'
+      },
+      'prod-3': {
+        id: 'prod-3',
+        name: 'Bluetooth Speaker Pro',
+        price: 59.99,
+        image: 'assets/img/product/product-3.webp'
+      }
+    };
+
+    // Cart Integration object
+    const CartIntegration = {
+      cart: [],
+      init: function() {
+        this.loadCart();
+        this.updateCartDisplay();
+        this.setupEventListeners();
+      },
+      loadCart: function() {
+        const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+        this.cart = storedCart.map(item => ({ ...item, total: item.price * item.quantity }));
+      },
+      saveCart: function() {
+        localStorage.setItem('cart', JSON.stringify(this.cart));
+      },
+      updateCartDisplay: function() {
+        const cartItemsContainer = document.querySelector('.cart-items');
+        cartItemsContainer.innerHTML = '';
+        let subtotal = 0;
+
+        this.cart.forEach(item => {
+          subtotal += item.total;
+          const cartItemDiv = document.createElement('div');
+          cartItemDiv.className = 'cart-item';
+          cartItemDiv.setAttribute('data-product-id', item.id);
+          cartItemDiv.innerHTML = `
+            <div class="row align-items-center">
+              <div class="col-lg-6 col-12 mt-3 mt-lg-0 mb-lg-0 mb-3">
+                <div class="product-info d-flex align-items-center">
+                  <div class="product-image">
+                    <img src="${item.image}" alt="Product" class="img-fluid" loading="lazy">
+                  </div>
+                  <div class="product-details">
+                    <h6 class="product-title">${item.name}</h6>
+                    <div class="product-meta">
+                      <span class="product-color">Color: Black</span>
+                      <span class="product-size">Size: One Size</span>
+                    </div>
+                    <button class="remove-item" type="button" onclick="CartIntegration.removeFromCart('${item.id}')">
+                      <i class="bi bi-trash"></i> Remove
+                    </button>
+                    <!-- Collaborator Reactions (button always visible, feedback toggled) -->
+                    <div class="collaborator-reactions mt-2" data-product-id="${item.id}">
+                      <button type="button" class="btn btn-outline-primary btn-sm collaborator-feedback-btn" onclick="toggleFeedback('${item.id}')">
+                        <i class="bi bi-chat-dots me-1"></i> Collaborator Feedback
+                      </button>
+                      <div class="collaborator-feedback-list d-none mt-2">
+                        <div class="reactions-list"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                <div class="price-tag">
+                  <span class="current-price">$${item.price.toFixed(2)}</span>
+                </div>
+              </div>
+              <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                <div class="quantity-selector">
+                  <button class="quantity-btn decrease" onclick="CartIntegration.decreaseQuantity('${item.id}')">
+                    <i class="bi bi-dash"></i>
+                  </button>
+                  <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="10" 
+                         onchange="CartIntegration.updateQuantity('${item.id}', this.value)">
+                  <button class="quantity-btn increase" onclick="CartIntegration.increaseQuantity('${item.id}')">
+                    <i class="bi bi-plus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                <div class="item-total">
+                  <span>$${item.total.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          `;
+          cartItemsContainer.appendChild(cartItemDiv);
+        });
+
+        const subtotalElement = document.querySelector('.summary-item .summary-value');
+        if (subtotalElement) {
+          subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+        }
+
+        const totalElement = document.querySelector('.summary-total .summary-value');
+        if (totalElement) {
+          totalElement.textContent = `$${(subtotal + 28).toFixed(2)}`;
+        }
+      },
+      removeFromCart: function(productId) {
+        this.cart = this.cart.filter(item => item.id !== productId);
+        this.saveCart();
+        this.updateCartDisplay();
+      },
+      clearCart: function() {
+        this.cart = [];
+        this.saveCart();
+        this.updateCartDisplay();
+      },
+      updateQuantity: function(productId, quantity) {
+        const item = this.cart.find(item => item.id === productId);
+        if (item) {
+          item.quantity = parseInt(quantity, 10);
+          item.total = item.price * item.quantity;
+          this.saveCart();
+          this.updateCartDisplay();
+        }
+      },
+      increaseQuantity: function(productId) {
+        const item = this.cart.find(item => item.id === productId);
+        if (item) {
+          item.quantity++;
+          item.total = item.price * item.quantity;
+          this.saveCart();
+          this.updateCartDisplay();
+        }
+      },
+      decreaseQuantity: function(productId) {
+        const item = this.cart.find(item => item.id === productId);
+        if (item && item.quantity > 1) {
+          item.quantity--;
+          item.total = item.price * item.quantity;
+          this.saveCart();
+          this.updateCartDisplay();
+        }
+      },
+      setupEventListeners: function() {
+        const self = this;
+        document.querySelectorAll('.collaborator-feedback-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const productId = this.closest('.collaborator-reactions').getAttribute('data-product-id');
+            toggleFeedback(productId);
+          });
+        });
+      }
+    };
+
+    // Initialize cart integration on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      CartIntegration.init();
+    });
+
+    // Collaborator Reactions Display
+    function CartReactionsDisplay() {
+      this.setupRealtimeListeners();
+      this.setupFeedbackButtons();
+    }
+    CartReactionsDisplay.prototype.setupRealtimeListeners = function() {
+      var self = this;
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'collaborator_reactions' || e.key === 'cart_reactions') {
+          self.loadReactionsForAll();
+        }
+      });
+      window.addEventListener('newCollaboratorReaction', function(e) {
+        self.displayReaction(e.detail);
+      });
+      if (typeof db !== 'undefined') {
+        db.collection('reactions').onSnapshot(function(snapshot) {
+          snapshot.docChanges().forEach(function(change) {
+            if (change.type === 'added') {
+              self.displayReaction(change.doc.data());
+            }
+          });
+        });
+        db.collection('ai_suggestions').onSnapshot(function(snapshot) {
+          snapshot.docChanges().forEach(function(change) {
+            if (change.type === 'added') {
+              self.showAISuggestion(change.doc.data());
+            }
+          });
+        });
+      }
+    };
+    CartReactionsDisplay.prototype.setupFeedbackButtons = function() {
+      var self = this;
+      document.querySelectorAll('.collaborator-feedback-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var productId = btn.getAttribute('data-product-id');
+          self.toggleFeedback(productId);
+        });
+      });
+    };
+    CartReactionsDisplay.prototype.toggleFeedback = function(productId) {
+      var reactionsDiv = document.querySelector('.collaborator-reactions[data-product-id="' + productId + '"]');
+      if (!reactionsDiv) return;
+      var reactionsList = reactionsDiv.querySelector('.reactions-list');
+      if (!reactionsList) return;
+      reactionsList.classList.toggle('d-none');
+      if (!reactionsList.classList.contains('d-none')) {
+        this.loadReactionsForProduct(productId);
+      }
+    };
+    CartReactionsDisplay.prototype.loadReactionsForAll = function() {
+      var self = this;
+      document.querySelectorAll('.collaborator-reactions:not(.d-none)').forEach(function(div) {
+        var productId = div.getAttribute('data-product-id');
+        self.loadReactionsForProduct(productId);
+      });
+    };
+    CartReactionsDisplay.prototype.loadReactionsForProduct = function(productId) {
+  var reactionsDiv = document.querySelector('.collaborator-reactions[data-product-id="' + productId + '"]');
+  if (!reactionsDiv) return;
+  var reactionsList = reactionsDiv.querySelector('.reactions-list');
+  reactionsList.innerHTML = '';
+  try {
+    var reactions = JSON.parse(localStorage.getItem('collaborator_reactions') || '[]');
+    // Filter: only the latest reaction per collaborator
+    var filtered = {};
+    reactions
+      .filter(function(r) { return r.productId === productId; })
+      .forEach(function(r) {
+        filtered[r.collaborator] = r;
+      });
+    Object.values(filtered).forEach(this.displayReaction.bind(this));
+  } catch (error) {
+    console.error('Error loading reactions:', error);
+  }
+};
+
+CartReactionsDisplay.prototype.displayReaction = function(reaction) {
+  var productReactions = document.querySelector('.collaborator-reactions[data-product-id="' + reaction.productId + '"] .reactions-list');
+  if (!productReactions) return;
+  if (productReactions.querySelector('[data-timestamp="' + reaction.timestamp + '"]')) return;
+  var reactionElement = document.createElement('div');
+  reactionElement.className = 'reaction-item mb-2';
+  reactionElement.dataset.timestamp = reaction.timestamp;
+  reactionElement.innerHTML = '<div class="d-flex align-items-start gap-2">' +
+    '<div class="reaction-emoji">' + (reaction.emoji || '💬') + '</div>' +
+    '<div class="reaction-content flex-grow-1">' +
+      '<div class="reaction-text">' + (reaction.message || 'Voice message') + '</div>' +
+      (reaction.audioUrl ? '<div class="reaction-audio mt-1"><audio controls style="width: 200px; height: 30px;"><source src="' + reaction.audioUrl + '" type="audio/wav"></audio></div>' : '') +
+      '<small class="text-muted">' + reaction.collaborator + ' • ' + new Date(reaction.timestamp).toLocaleTimeString() + '</small>' +
+    '</div>' +
+  '</div>';
+  reactionElement.style.cssText = 'background: #f8f9fa; border-radius: 8px; padding: 0.75rem; border-left: 3px solid #007bff; margin-bottom: 0.5rem; animation: slideInReaction 0.3s ease-out;';
+  productReactions.appendChild(reactionElement);
+};
+
+
+    CartReactionsDisplay.prototype.showAISuggestion = function(suggestion) {
+      if (document.querySelector('.ai-suggestion-popup')) return;
+      var popup = document.createElement('div');
+      popup.className = 'ai-suggestion-popup';
+      popup.style.cssText = 'position: fixed; top: 20px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); padding: 1.5rem; max-width: 350px; z-index: 9999; animation: slideInPopup 0.3s ease-out; border-left: 4px solid ' + (suggestion.suggestion.action === 'BUY' ? '#28a745' : '#ffc107') + ';';
+      popup.innerHTML = '<div class="suggestion-header d-flex justify-content-between align-items-start mb-3">' +
+        '<h6 class="mb-0">🤖 AI Fashion Advisor</h6>' +
+        '<span class="badge bg-' + (suggestion.suggestion.action === 'BUY' ? 'success' : 'warning') + '">' + suggestion.suggestion.confidence + ' Confidence</span>' +
+        '</div>' +
+        '<div class="suggestion-body mb-3">' +
+          '<div class="action-recommendation d-flex align-items-center gap-2 mb-2" style="color: ' + (suggestion.suggestion.action === 'BUY' ? '#28a745' : '#ffc107') + '; font-weight: bold;">' +
+            '<i class="bi bi-' + (suggestion.suggestion.action === 'BUY' ? 'cart-check' : 'x-circle') + '"></i>' +
+            '<span>' + (suggestion.suggestion.action === 'BUY' ? 'Recommended to Buy' : 'Consider Skipping') + '</span>' +
+          '</div>' +
+          '<p class="mb-2">' + suggestion.suggestion.message + '</p>' +
+          '<small class="text-muted">Based on collaborator feedback from Hitakshi Sharma</small>' +
+        '</div>' +
+        '<div class="suggestion-actions d-flex gap-2">' +
+          '<button class="btn btn-sm btn-outline-secondary" onclick="this.closest(\'.ai-suggestion-popup\').remove()">Dismiss</button>' +
+          '<button class="btn btn-sm btn-primary" onclick="this.closest(\'.ai-suggestion-popup\').remove()">Thanks!</button>' +
+        '</div>';
+     
+    };
+   
+
+    document.addEventListener('DOMContentLoaded', function() {
+  const reactionsDisplay = new CartReactionsDisplay();
+  CartIntegration.updateCartDisplay();
+
+  // --- Show AI suggestions on load ---
+  try {
+    const suggestions = JSON.parse(localStorage.getItem('ai_suggestions') || '[]');
+    suggestions.forEach(suggestion => {
+      if (!suggestion.shown) {
+        reactionsDisplay.showAISuggestion(suggestion);
+        suggestion.shown = true;
+      }
+    });
+    localStorage.setItem('ai_suggestions', JSON.stringify(suggestions));
+  } catch (error) {
+    console.error('Error loading reactions:', error);
+  }
+});
+
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideInReaction {
+        from {
+          transform: translateX(-20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideInPopup {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      .collaborator-reactions {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+      }
+
+      .reactions-list {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .reaction-emoji {
+        font-size: 1.2rem;
+        min-width: 30px;
+      }
+
+      .reaction-text {
+        font-size: 0.9rem;
+        color: #333;
+      }
+
+      .reaction-audio audio {
+        width: 100%;
+        max-width: 200px;
+        height: 30px;
+      }
+
+      .collaborator-link {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        color: white;
+        padding: 1rem;
+        border-radius: 50px;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+
+      .collaborator-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        color: white;
+        text-decoration: none;
+      }
+
+      .collaborator-link i {
+        margin-right: 0.5rem;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Initialize everything when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      new CartReactionsDisplay();
+      CartIntegration.updateCartDisplay();
+      
+      // Add test button for debugging
+      const testBtn = document.createElement('button');
+      testBtn.textContent = 'Test Reaction';
+      testBtn.style.cssText = `
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        z-index: 1000;
+      `;
+      testBtn.onclick = () => {
+        const testReaction = {
+          productId: 'prod-1',
+          emoji: '👍',
+          message: 'Test reaction message!',
+          timestamp: new Date().toISOString(),
+          collaborator: 'Test User'
+        };
+        
+        // Save to localStorage
+        const reactions = JSON.parse(localStorage.getItem('collaborator_reactions') || '[]');
+        reactions.push(testReaction);
+        localStorage.setItem('collaborator_reactions', JSON.stringify(reactions));
+        
+        // Trigger display
+        window.dispatchEvent(new CustomEvent('newCollaboratorReaction', { detail: testReaction }));
+      };
+      document.body.appendChild(testBtn);
+    });
+  </script>
+
+  <!-- Collaborator Access Link -->
+  <a href="collaborator/collaborator_card.html" class="collaborator-link" target="_blank">
+    <i class="bi bi-people"></i>
+    <span>Collaborator View</span>
+  </a>
+
+  
+
+
+
+  <script>
+ document.getElementById("addCollaboratorBtn").onclick = function(e) {
+    e.preventDefault();
+    var email = document.getElementById("collabEmail").value.trim();
+    if (email) {
+        // Show notification or modal instead
+        alert("Collaborator added! request sent successfully!");
+        // If you want, you can add further logic here
+    } else {
+        alert("Please enter a valid email!");
+    }
+};
+
+    </script>
+
+
+
+
+
+<script>
+  if (!window.name) window.name = 'tab' + Math.floor(Math.random() * 1e8);
+  localStorage.setItem('sharedcart_tab_open_' + window.name, 'true');
+  function areAnyTabsOpen() {
+    return Object.keys(localStorage).some(k => k.startsWith('sharedcart_tab_open_'));
+  }
+  window.addEventListener('beforeunload', function() {
+    localStorage.removeItem('sharedcart_tab_open_' + window.name);
+    setTimeout(function() {
+      if (!areAnyTabsOpen()) {
+        localStorage.removeItem('collaborator_reactions');
+        localStorage.removeItem('ai_suggestions');
+      }
+    }, 0);
+  });
+  </script>
+<script>
+  function getLatestFeedbackSuggestion(productId) {
+    // Get all reactions from localStorage
+    let reactions = JSON.parse(localStorage.getItem('collaborator_reactions') || '[]');
+
+    // Filter only reactions for this product and sort by timestamp descending (latest first)
+    let productReactions = reactions
+      .filter(r => r.productId === productId)
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    if (productReactions.length === 0) return { label: "", color: "" };
+
+    // Take the latest reaction's message (transcription) and audioUrl
+    let latestReaction = productReactions[0];
+    let message = (latestReaction.message || "").toLowerCase().trim();
+
+    // If no message but audio exists, suggest "Buy It"
+    if (!message && latestReaction.audioUrl) {
+      return { label: "Buy It", color: "#05a854" };
+    }
+
+    // Check keywords for suggestion
+    if (message.includes("bad") || message.includes("not good") || message.includes("hate") || message.includes("skip")) {
+      return { label: "Skip It", color: "#dc2626" };
+    }
+    if (message.includes("love") || message.includes("like") || message.includes("nice") || message.includes("good") || message.includes("lovely")) {
+      return { label: "Buy It", color: "#05a854" };
+    }
+
+    // Default suggestion
+    return { label: "Buy It", color: "#05a854" };
+  }
+
+  // Usage example: update suggestion UI for all products
+  ["prod-1", "prod-2", "prod-3"].forEach(pid => {
+    const suggSpan = document.getElementById("llm-suggestion-" + pid);
+    if (!suggSpan) return;
+    const suggestion = getLatestFeedbackSuggestion(pid);
+    suggSpan.textContent = suggestion.label;
+    suggSpan.style.background = suggestion.color;
+    suggSpan.style.color = "#fff";
+    suggSpan.style.marginTop = "5px";
+    suggSpan.style.marginBottom = "5px";
+    suggSpan.style.display = "inline-block";
+  });
+</script>
+
+    </body>
+    </html>
+    

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Products - FashionStore Bootstrap Template</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="assets/css/main.css" rel="stylesheet">
+
+  <style>
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      padding: 2rem 0;
+    }
+    
+    .product-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .product-image {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .product-image img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .product-image img {
+      transform: scale(1.05);
+    }
+    
+    .product-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #dc3545;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .product-badge.new {
+      background: #28a745;
+    }
+    
+    .product-info {
+      padding: 1.5rem;
+    }
+    
+    .product-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+    
+    .product-description {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    
+    .product-price {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .current-price {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #007bff;
+    }
+    
+    .original-price {
+      font-size: 1rem;
+      color: #999;
+      text-decoration: line-through;
+    }
+    
+    .add-to-cart-btn {
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+    
+    .add-to-cart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    }
+    
+    .add-to-cart-btn:active {
+      transform: translateY(0);
+    }
+    
+    .add-to-cart-btn.added {
+      background: #28a745;
+      transform: scale(0.95);
+    }
+    
+    .page-hero {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      padding: 4rem 0;
+      text-align: center;
+    }
+    
+    .filters {
+      background: #f8f9fa;
+      padding: 1.5rem 0;
+      margin-bottom: 2rem;
+    }
+    
+    .filter-btn {
+      margin: 0.25rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+    }
+    
+    .filter-btn.active,
+    .filter-btn:hover {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+  </style>
+</head>
+
+<body class="products-page">
+
+  <header id="header" class="header position-relative">
+    <!-- Simplified header -->
+    <div class="main-header">
+      <div class="container-fluid container-xl">
+        <div class="d-flex py-3 align-items-center justify-content-between">
+          <a href="index.html" class="logo d-flex align-items-center">
+            <h1 class="sitename">Fashion<span>Store</span></h1>
+          </a>
+          
+          <!-- Cart link -->
+          <div class="header-actions">
+            <a href="cart.html" class="btn btn-outline-primary">
+              <i class="bi bi-cart3"></i>
+              View Cart (<span id="cart-count">0</span>)
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Page Hero -->
+    <section class="page-hero">
+      <div class="container">
+        <h1>Our Products</h1>
+        <p>Discover amazing products at great prices</p>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="filters">
+      <div class="container">
+        <div class="text-center">
+          <button class="filter-btn active" data-filter="all">All Products</button>
+          <button class="filter-btn" data-filter="electronics">Electronics</button>
+          <button class="filter-btn" data-filter="accessories">Accessories</button>
+          <button class="filter-btn" data-filter="audio">Audio</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-section">
+      <div class="container">
+        <div class="product-grid" id="products-grid">
+          <!-- Products will be loaded here -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add to Cart Success Toast -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="addToCartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <i class="bi bi-check-circle-fill text-success me-2"></i>
+        <strong class="me-auto">Success!</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        Product added to cart successfully!
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+
+  <script>
+    // Product data
+    const products = [
+      {
+        id: 'prod-1',
+        name: 'Premium Wireless Headphones',
+        description: 'High-quality wireless headphones with noise cancellation and 30-hour battery life.',
+        price: 89.99,
+        originalPrice: null,
+        image: 'assets/img/product/product-1.webp',
+        category: 'audio',
+        badge: null
+      },
+      {
+        id: 'prod-2',
+        name: 'Smart Fitness Watch',
+        description: 'Advanced fitness tracking with heart rate monitor, GPS, and waterproof design.',
+        price: 129.99,
+        originalPrice: 159.99,
+        image: 'assets/img/product/product-2.webp',
+        category: 'electronics',
+        badge: 'Sale'
+      },
+      {
+        id: 'prod-3',
+        name: 'Bluetooth Speaker Pro',
+        description: 'Waterproof portable speaker with 12-hour battery life and premium sound quality.',
+        price: 59.99,
+        originalPrice: null,
+        image: 'assets/img/product/product-3.webp',
+        category: 'audio',
+        badge: 'New'
+      },
+      {
+        id: 'prod-4',
+        name: 'Wireless Gaming Mouse',
+        description: 'High-precision gaming mouse with RGB lighting and ergonomic design.',
+        price: 79.99,
+        originalPrice: 99.99,
+        image: 'assets/img/product/product-4.webp',
+        category: 'electronics',
+        badge: 'Sale'
+      },
+      {
+        id: 'prod-5',
+        name: 'USB-C Charging Hub',
+        description: 'Multi-port charging hub with fast charging support for all your devices.',
+        price: 39.99,
+        originalPrice: null,
+        image: 'assets/img/product/product-5.webp',
+        category: 'accessories',
+        badge: null
+      },
+      {
+        id: 'prod-6',
+        name: 'Wireless Earbuds Pro',
+        description: 'True wireless earbuds with active noise cancellation and wireless charging case.',
+        price: 149.99,
+        originalPrice: null,
+        image: 'assets/img/product/product-6.webp',
+        category: 'audio',
+        badge: 'New'
+      }
+    ];
+
+    class ProductManager {
+      constructor() {
+        this.cart = JSON.parse(localStorage.getItem('shopping_cart') || '[]');
+        this.currentFilter = 'all';
+        this.init();
+      }
+
+      init() {
+        this.renderProducts();
+        this.setupEventListeners();
+        this.updateCartCount();
+        AOS.init();
+      }
+
+      renderProducts(filter = 'all') {
+        const grid = document.getElementById('products-grid');
+        const filteredProducts = filter === 'all' ? products : products.filter(p => p.category === filter);
+
+        grid.innerHTML = filteredProducts.map(product => `
+          <div class="product-card" data-aos="fade-up" data-category="${product.category}">
+            <div class="product-image">
+              <img src="${product.image}" alt="${product.name}" loading="lazy">
+              ${product.badge ? `<span class="product-badge ${product.badge.toLowerCase()}">${product.badge}</span>` : ''}
+            </div>
+            <div class="product-info">
+              <h5 class="product-title">${product.name}</h5>
+              <p class="product-description">${product.description}</p>
+              <div class="product-price">
+                <span class="current-price">$${product.price}</span>
+                ${product.originalPrice ? `<span class="original-price">$${product.originalPrice}</span>` : ''}
+              </div>
+              <button class="add-to-cart-btn" data-product-id="${product.id}">
+                <i class="bi bi-cart-plus me-2"></i>Add to Cart
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      setupEventListeners() {
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const filter = btn.dataset.filter;
+            this.currentFilter = filter;
+            this.renderProducts(filter);
+          });
+        });
+
+        // Add to cart buttons
+        document.addEventListener('click', (e) => {
+          if (e.target.classList.contains('add-to-cart-btn') || e.target.closest('.add-to-cart-btn')) {
+            const btn = e.target.classList.contains('add-to-cart-btn') ? e.target : e.target.closest('.add-to-cart-btn');
+            const productId = btn.dataset.productId;
+            this.addToCart(productId, btn);
+          }
+        });
+      }
+
+      addToCart(productId, btn) {
+        const existingItem = this.cart.find(item => item.productId === productId);
+        
+        if (existingItem) {
+          existingItem.quantity += 1;
+        } else {
+          this.cart.push({
+            productId: productId,
+            quantity: 1,
+            addedAt: new Date().toISOString()
+          });
+        }
+
+        localStorage.setItem('shopping_cart', JSON.stringify(this.cart));
+        
+        // Visual feedback
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check me-2"></i>Added!';
+        btn.classList.add('added');
+        btn.disabled = true;
+
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.classList.remove('added');
+          btn.disabled = false;
+        }, 1500);
+
+        this.updateCartCount();
+        this.showToast();
+      }
+
+      updateCartCount() {
+        const totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
+        document.getElementById('cart-count').textContent = totalItems;
+      }
+
+      showToast() {
+        const toast = new bootstrap.Toast(document.getElementById('addToCartToast'));
+        toast.show();
+      }
+    }
+
+    // Initialize product manager
+    document.addEventListener('DOMContentLoaded', () => {
+      new ProductManager();
+    });
+  </script>
+
+</body>
+
+</html>
