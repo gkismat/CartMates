@@ -37,10 +37,8 @@ FIREBASE INTEGRATION
 
 ---
 
-LIVE DEMO & SOURCE
 
-Live Demo: Add your demo link here
-Source Code: GitHub repo link
+
 
 ---
 
